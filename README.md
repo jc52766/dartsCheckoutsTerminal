@@ -4,11 +4,16 @@ A terminal-based program to help you practice darts checkouts. The program prese
 
 ## Features
 
+- **Multiple Game Modes**: Choose between FREE mode (no time limit) or timed challenges
+- **Timed Challenges**: Three difficulty levels with scoring system
+  - EASY: 20 seconds per checkout
+  - MEDIUM: 10 seconds per checkout  
+  - HARD: 5 seconds per checkout
 - **Random Checkout Generation**: Generates valid checkout scores between 2-170 (excludes impossible checkouts like 169, 168, 166, 165, 163, 162, 159)
 - **Bullseye Support**: Full support for both outer bull (25) and double bull (50)
 - **Input Validation**: Ensures checkouts end with a double and dart combinations are valid
 - **Clear Feedback**: Shows whether your attempt is correct or incorrect with helpful error messages
-- **Continuous Practice**: Automatically generates new checkouts after successful attempts
+- **Scoring System**: In timed modes, earn 1 point per correct answer with game over on mistakes
 
 ## Installation & Usage
 
@@ -31,11 +36,32 @@ A terminal-based program to help you practice darts checkouts. The program prese
 - `s19t20d20` = Single 19 + Triple 20 + Double 20 = 99
 - `t18db` = Triple 18 + Double Bull = 104
 
+## Game Modes
+
+### FREE Mode (Default)
+No time limit - practice at your own pace with unlimited retries.
+
+### Timed Modes
+Challenge yourself with time pressure! Score points for correct answers, but game over on any mistake or timeout.
+
 ## Example Gameplay
 
+### Mode Selection
 ```
 🎯 Darts Checkout Practice
 ==============================
+Select game mode:
+1. FREE - No time limit (default)
+2. EASY - 20 seconds per checkout
+3. MEDIUM - 10 seconds per checkout
+4. HARD - 5 seconds per checkout
+
+Enter mode (1-4) or press Enter for FREE mode: 2
+```
+
+### FREE Mode Example
+```
+🎯 FREE MODE - No time limit
 Enter your darts using notation like: t20s20d20 or t18db
 s = single, d = double, t = triple
 db = double bull (50), ob = outer bull (25)
@@ -54,11 +80,6 @@ Your darts: s19t20d20
 ✅ Correct!
 Solution: 19 + T20 + D20
 
-Checkout: 104
-Your darts: t18db
-✅ Correct!
-Solution: T18 + DB
-
 Checkout: 87
 Your darts: t20s20d10
 ❌ Total score 90 doesn't match checkout 87
@@ -66,26 +87,31 @@ Try again...
 Your darts: t17d18
 ✅ Correct!
 Solution: T17 + D18
+```
 
-Checkout: 50
-Your darts: s20s20s10
-❌ Checkout must end with a double
-Try again...
+### Timed Mode Example
+```
+🎯 EASY MODE - 20 seconds per checkout
+Score 1 point for each correct answer. Game over on incorrect answer or timeout!
+Enter your darts using notation like: t20s20d20 or t18db
+s = single, d = double, t = triple
+db = double bull (50), ob = outer bull (25)
+Type 'quit' to exit
+
+Checkout: 104 | Score: 0 | Time: 20s
+Your darts: t18db
+✅ Correct! (3.2s)
+Solution: T18 + DB
+
+Checkout: 50 | Score: 1 | Time: 20s
 Your darts: db
-✅ Correct!
+✅ Correct! (1.8s)
 Solution: DB
 
-Checkout: 145
-Your darts: t20t19d16
-❌ Invalid input: Triple 19 is not valid
-Try again...
-Your darts: t20t15d25
-✅ Correct!
-Solution: T20 + T15 + D25
-
-Checkout: 32
-Your darts: quit
-Thanks for practicing! 🎯
+Checkout: 87 | Score: 2 | Time: 20s
+Your darts: t20s20d10
+💀 GAME OVER! Total score 90 doesn't match checkout 87
+Final Score: 2 points
 ```
 
 ## Rules

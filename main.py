@@ -1,5 +1,8 @@
 import random
 import re
+import time
+import threading
+import sys
 
 def generate_checkout():
     """Generate a random valid checkout score between 2 and 170."""
@@ -118,10 +121,64 @@ def format_darts_display(darts):
     
     return " + ".join(dart_strings)
 
-def main():
-    """Main game loop."""
+class TimedInput:
+    """Helper class for timed input with timeout."""
+    def __init__(self, timeout):
+        self.timeout = timeout
+        self.result = None
+        self.timed_out = False
+    
+    def input_with_timeout(self, prompt):
+        """Get input with timeout."""
+        self.result = None
+        self.timed_out = False
+        
+        def get_input():
+            try:
+                self.result = input(prompt).strip()
+            except EOFError:
+                self.result = ""
+        
+        input_thread = threading.Thread(target=get_input)
+        input_thread.daemon = True
+        input_thread.start()
+        input_thread.join(self.timeout)
+        
+        if input_thread.is_alive():
+            self.timed_out = True
+            print("\n⏰ Time's up!")
+            return None
+        
+        return self.result
+
+def select_game_mode():
+    """Let user select game mode."""
     print("🎯 Darts Checkout Practice")
     print("=" * 30)
+    print("Select game mode:")
+    print("1. FREE - No time limit (default)")
+    print("2. EASY - 20 seconds per checkout")
+    print("3. MEDIUM - 10 seconds per checkout")
+    print("4. HARD - 5 seconds per checkout")
+    print()
+    
+    while True:
+        choice = input("Enter mode (1-4) or press Enter for FREE mode: ").strip()
+        
+        if choice == "" or choice == "1":
+            return "free", None
+        elif choice == "2":
+            return "timed", 20
+        elif choice == "3":
+            return "timed", 10
+        elif choice == "4":
+            return "timed", 5
+        else:
+            print("Invalid choice. Please enter 1-4 or press Enter.")
+
+def play_free_mode():
+    """Play in free mode (no time limit)."""
+    print("\n🎯 FREE MODE - No time limit")
     print("Enter your darts using notation like: t20s20d20 or t18db")
     print("s = single, d = double, t = triple")
     print("db = double bull (50), ob = outer bull (25)")
@@ -165,6 +222,80 @@ def main():
             except KeyboardInterrupt:
                 print("\nThanks for practicing! 🎯")
                 return
+
+def play_timed_mode(time_limit):
+    """Play in timed mode with scoring."""
+    difficulty = "EASY" if time_limit == 20 else "MEDIUM" if time_limit == 10 else "HARD"
+    print(f"\n🎯 {difficulty} MODE - {time_limit} seconds per checkout")
+    print("Score 1 point for each correct answer. Game over on incorrect answer or timeout!")
+    print("Enter your darts using notation like: t20s20d20 or t18db")
+    print("s = single, d = double, t = triple")
+    print("db = double bull (50), ob = outer bull (25)")
+    print("Type 'quit' to exit")
+    print()
+    
+    score = 0
+    timed_input = TimedInput(time_limit)
+    
+    while True:
+        checkout = generate_checkout()
+        print(f"Checkout: {checkout} | Score: {score} | Time: {time_limit}s")
+        
+        start_time = time.time()
+        user_input = timed_input.input_with_timeout("Your darts: ")
+        
+        if timed_input.timed_out:
+            print(f"\n💀 GAME OVER! Time's up!")
+            print(f"Final Score: {score} points")
+            break
+        
+        if user_input is None or user_input.lower() == 'quit':
+            print("Thanks for practicing! 🎯")
+            print(f"Final Score: {score} points")
+            return
+        
+        if not user_input:
+            print("💀 GAME OVER! No input provided.")
+            print(f"Final Score: {score} points")
+            break
+        
+        try:
+            darts = parse_input(user_input)
+            is_valid, message = validate_checkout(checkout, darts)
+            
+            elapsed_time = time.time() - start_time
+            
+            if is_valid:
+                score += 1
+                print(f"✅ {message} ({elapsed_time:.1f}s)")
+                print(f"Solution: {format_darts_display(darts)}")
+                print()
+            else:
+                print(f"💀 GAME OVER! {message}")
+                print(f"Final Score: {score} points")
+                break
+                
+        except ValueError as e:
+            print(f"💀 GAME OVER! Invalid input: {e}")
+            print(f"Final Score: {score} points")
+            break
+        except KeyboardInterrupt:
+            print(f"\nThanks for practicing! 🎯")
+            print(f"Final Score: {score} points")
+            return
+
+def main():
+    """Main game loop."""
+    try:
+        mode, time_limit = select_game_mode()
+        
+        if mode == "free":
+            play_free_mode()
+        else:
+            play_timed_mode(time_limit)
+            
+    except KeyboardInterrupt:
+        print("\nThanks for practicing! 🎯")
 
 if __name__ == "__main__":
     main()
